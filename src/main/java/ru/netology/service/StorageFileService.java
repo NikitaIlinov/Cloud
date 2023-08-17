@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.netology.dto.request.EditFileNameRQ;
 import ru.netology.dto.response.FileRS;
 import ru.netology.exception.InputDataException;
 import ru.netology.exception.UnauthorizedException;
@@ -32,17 +31,17 @@ public class StorageFileService {
     public boolean uploadFile(String authToken, String filename, MultipartFile file) {
         final User user = getUserByAuthToken(authToken);
         if (user == null) {
-            log.error("Upload file: Unauthorized");
-            throw new UnauthorizedException("Upload file: Unauthorized");
+            log.error("Upload file: Unauthorized access for token '{}'", authToken);
+            throw new UnauthorizedException("Unauthorized access: Upload file");
         }
 
         try {
             storageFileRepository.save(new StorageFile(filename, LocalDateTime.now(), file.getSize(), file.getBytes(), user));
-            log.info("Success upload file. User {}", user.getUsername());
+            log.info("File uploaded successfully. User: {}", user.getUsername());
             return true;
         } catch (IOException e) {
-            log.error("Upload file: Input data exception");
-            throw new InputDataException("Upload file: Input data exception");
+            log.error("Upload file failed due to input data exception: {}", e.getMessage());
+            throw new InputDataException("Upload file failed: Input data exception");
         }
     }
 
@@ -50,63 +49,61 @@ public class StorageFileService {
     public void deleteFile(String authToken, String filename) {
         final User user = getUserByAuthToken(authToken);
         if (user == null) {
-            log.error("Delete file: Unauthorized");
-            throw new UnauthorizedException("Delete file: Unauthorized");
+            log.error("Delete file: Unauthorized access for token '{}'", authToken);
+            throw new UnauthorizedException("Unauthorized access: Delete file");
         }
 
         storageFileRepository.deleteByUserAndFilename(user, filename);
 
-        final StorageFile tryingToGetDeletedFile = storageFileRepository.findByUserAndFilename(user, filename);
-        if (tryingToGetDeletedFile != null) {
-            log.error("Delete file: Input data exception");
-            throw new InputDataException("Delete file: Input data exception");
+        final StorageFile deletedFile = storageFileRepository.findByUserAndFilename(user, filename);
+        if (deletedFile != null) {
+            log.error("Failed to delete file '{}'", filename);
+            throw new InputDataException("Failed to delete file");
         }
-        log.info("Success delete file. User {}", user.getUsername());
+        log.info("File deleted successfully. User: {}", user.getUsername());
     }
 
     public byte[] downloadFile(String authToken, String filename) {
         final User user = getUserByAuthToken(authToken);
         if (user == null) {
-            log.error("Download file: Unauthorized");
-            throw new UnauthorizedException("Download file: Unauthorized");
+            log.error("Download file: Unauthorized access for token '{}'", authToken);
+            throw new UnauthorizedException("Unauthorized access: Download file");
         }
 
         final StorageFile file = storageFileRepository.findByUserAndFilename(user, filename);
         if (file == null) {
-            log.error("Download file: Input data exception");
-            throw new InputDataException("Download file: Input data exception");
+            log.error("File '{}' not found for download", filename);
+            throw new InputDataException("File not found for download");
         }
-        log.info("Success download file. User {}", user.getUsername());
+        log.info("File downloaded successfully. User: {}", user.getUsername());
         return file.getFileContent();
     }
 
     @Transactional
-    public void editFileName(String authToken, String filename, EditFileNameRQ editFileNameRQ) {
+    public void editFileName(String authToken, String filename, String newFileName) {
         final User user = getUserByAuthToken(authToken);
         if (user == null) {
-            log.error("Edit file name: Unauthorized");
-            throw new UnauthorizedException("Edit file name: Unauthorized");
+            log.error("Edit file name: Unauthorized access for token '{}'", authToken);
+            throw new UnauthorizedException("Unauthorized access: Edit file name");
         }
-
-        storageFileRepository.editFileNameByUser(user, filename, editFileNameRQ.getFilename());
-
-        final StorageFile fileWithOldName = storageFileRepository.findByUserAndFilename(user, filename);
-        if (fileWithOldName != null) {
-            log.error("Edit file name: Input data exception");
-            throw new InputDataException("Edit file name: Input data exception");
+        if (newFileName != null) {
+            storageFileRepository.editFileNameByUser(user, filename, newFileName);
+            log.info("File name edited successfully. User: {}", user.getUsername());
+        } else {
+            log.error("Invalid input data for editing file name");
+            throw new InputDataException("Invalid input data: Edit file name");
         }
-        log.info("Success edit file name. User {}", user.getUsername());
     }
 
     public List<FileRS> getAllFiles(String authToken, Integer limit) {
         final User user = getUserByAuthToken(authToken);
         if (user == null) {
-            log.error("Get all files: Unauthorized");
-            throw new UnauthorizedException("Get all files: Unauthorized");
+            log.error("Get all files: Unauthorized access for token '{}'", authToken);
+            throw new UnauthorizedException("Unauthorized access: Get all files");
         }
-        log.info("Success get all files. User {}", user.getUsername());
+        log.info("Retrieved all files successfully. User: {}", user.getUsername());
         return storageFileRepository.findAllByUser(user).stream()
-                .map(o -> new FileRS(o.getFilename(), o.getSize()))
+                .map(file -> new FileRS(file.getFilename(), file.getSize()))
                 .collect(Collectors.toList());
     }
 

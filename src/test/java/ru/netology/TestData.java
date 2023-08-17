@@ -4,7 +4,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.multipart.MultipartFile;
 import ru.netology.dto.request.AuthenticationRQ;
-import ru.netology.dto.request.EditFileNameRQ;
 import ru.netology.dto.response.AuthenticationRS;
 import ru.netology.dto.response.FileRS;
 import ru.netology.model.StorageFile;
@@ -45,7 +44,7 @@ public class TestData {
     public static final StorageFile FOR_RENAME_STORAGE_FILE = new StorageFile(FOR_RENAME_FILENAME, LocalDateTime.now(), FOR_RENAME_SIZE, FOR_RENAME_FILE_CONTENT, USER_1);
 
     public static final String NEW_FILENAME = "NewFilename";
-    public static final EditFileNameRQ EDIT_FILE_NAME_RQ = new EditFileNameRQ(NEW_FILENAME);
+    public static final String EDIT_FILE_NAME_RQ = new EditFileNameRQ(NEW_FILENAME);
 
     public static final MultipartFile MULTIPART_FILE = new MockMultipartFile(FILENAME_2, FILE_CONTENT_2);
 

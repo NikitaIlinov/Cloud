@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.netology.dto.request.EditFileNameRQ;
 import ru.netology.dto.response.FileRS;
 import ru.netology.service.StorageFileService;
 
@@ -45,8 +44,8 @@ public class StorageFileController {
     @PutMapping(value = "/file")
     public ResponseEntity<?> editFileName(@RequestHeader("auth-token") String authToken,
                                           @RequestParam("filename") String filename,
-                                          @RequestBody EditFileNameRQ editFileNameRQ) {
-        cloudStorageService.editFileName(authToken, filename, editFileNameRQ);
+                                          @RequestBody String newFileName) {
+        cloudStorageService.editFileName(authToken, filename, newFileName);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
