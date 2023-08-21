@@ -15,6 +15,8 @@ import ru.netology.repository.AuthenticationRepository;
 import ru.netology.repository.StorageFileRepository;
 import ru.netology.repository.UserRepository;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.netology.TestData.*;
@@ -42,13 +44,13 @@ class StorageFileServiceTest {
     }
 
     @Test
-    void uploadFile() {
-        assertTrue(storageFileService.uploadFile(BEARER_TOKEN, FILENAME_1, MULTIPART_FILE));
+    void uploadFile() throws IOException {
+        assertTrue(storageFileService.uploadFile(BEARER_TOKEN, FILENAME_1, MULTIPART_FILE.getBytes()));
     }
 
     @Test
     void uploadFileUnauthorized() {
-        assertThrows(UnauthorizedException.class, () -> storageFileService.uploadFile(TOKEN_1, FILENAME_1, MULTIPART_FILE));
+        assertThrows(UnauthorizedException.class, () -> storageFileService.uploadFile(TOKEN_1, FILENAME_1, MULTIPART_FILE.getBytes()));
     }
 
     @Test

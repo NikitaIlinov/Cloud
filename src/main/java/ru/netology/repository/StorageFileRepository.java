@@ -22,4 +22,6 @@ public interface StorageFileRepository extends JpaRepository<StorageFile, String
     void editFileNameByUser(@Param("user") User user, @Param("filename") String filename, @Param("newName") String newName);
 
     List<StorageFile> findAllByUser(User user);
+
+    boolean existsByUserAndFilename(User user, String filename);
 }

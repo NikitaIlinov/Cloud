@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.netology.dto.response.FileRS;
 import ru.netology.service.StorageFileService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -22,8 +23,8 @@ public class StorageFileController {
     @PostMapping("/file")
     public ResponseEntity<?> uploadFile(@RequestHeader("auth-token") String authToken,
                                         @RequestParam("filename") String filename,
-                                        @RequestPart("file") MultipartFile file) {
-        cloudStorageService.uploadFile(authToken, filename, file);
+                                        @RequestPart("file") MultipartFile file) throws IOException {
+        cloudStorageService.uploadFile(authToken, filename, file.getBytes());
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
